@@ -7,12 +7,12 @@ class CTank;
 class CBomb:public CBaseObj
 {
 public:
-	void DrawObj(CMap& map);
-	void ClsObj(CMap& map);
-	int CheckObj(CMap& map);
-	void CollisionObj(CMap& map,int check);
-	void MoveObj(CMap& map);
-	static void GreateB(CTank& tank, CMap& map);
+	void DrawObj();
+	void ClsObj();
+	int CheckObj();
+	void CollisionObj(int check);
+	void MoveObj();
+	static void GreateB(CTank& tank);
 	bool GetExist()const;
 	void GetPos(int& x, int& y)const;
 	int GetTag()const;

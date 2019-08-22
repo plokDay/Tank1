@@ -38,7 +38,7 @@ public:
 						   //NODE_INFO privor;
 		void SetH_F(MYCOORD cod1, MYCOORD cod2)
 		{
-			h = abs(cod1.X - cod2.X) + abs(cod1.Y - cod2.Y);
+			h = abs(cod1.X - cod2.X)/2 + abs(cod1.Y - cod2.Y);//横向占两个字节，需要除2
 			f = g + h;
 		}
 
@@ -50,7 +50,7 @@ public:
 	vector<NODE_INFO> m_Close; //扩散过的点
 	vector<MY_MYCOORD>  m_Path;  //最短路径
 
-	int* m_pMap;      //地图的首地址
+	//int* m_pMap;      //地图的首地址
 	int  m_MapHigh;   //地图的长
 	int  m_MapWidth;  //地图的宽
 
@@ -63,11 +63,11 @@ public:
 	bool m_bInitMapInfo;    //是否初始化地图信息
 	bool m_bInitCoordInfo;  //是否初始化起始坐标信息
 
-
-	void InitMapInfo(int* pMap, int nHigh, int nWidth, int nBlock);
+	bool EludeBomb(int nextx, int nexty,int nDir);//躲避我方炮弹
+	void InitMapInfo(/*int* pMap,*/ int nHigh, int nWidth, int nBlock);
 	void InitCoord(MYCOORD codStar, MYCOORD codEnd);
 
-	bool FindPath(CMap& map); //查找包含最短路径的点（得到Close表）
+	bool FindPath(bool *stop); //查找包含最短路径的点（得到Close表）
 	void GetPath();  //获取最短路径
 	typedef struct _VIR_INFO
 	{
@@ -77,5 +77,5 @@ public:
 	}VIR_INFO, *PVIR_INFO;
 
 	static PVIR_INFO m_pVir; //指向虚拟地图的首地址
-	void PrintPath();
+	//void PrintPath();
 };

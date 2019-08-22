@@ -6,14 +6,15 @@ class CMap;
 class CTank:public CBaseObj
 {
 public:
-	void DrawObj(CMap& map);
-	void ClsObj(CMap& map);
+	void DrawObj();
+	void ClsObj();
 	void IniMyTank(int mtag,int color,int revive,int score);
-	void IniEne(CMap& map,int mtag);
-	void MoveObj(CMap& map);
-	int CheckObj(CMap& map);
-	void CollisionObj(CMap& map);
-	void Fire(CMap& map);
+	void IniEne(int mtag);
+	void MoveObj();
+	int CheckObj();
+	
+	void Fire();
+	
 	int GetRevive()const;
 	void GetPos(short& x, short& y)const;
 	int GetTag()const;
@@ -28,7 +29,7 @@ private:
 	int m_revive;//有几条命
 	int m_interval;//时间间隔
 	int m_lastClock;//上一次的时钟
-
+	
 
 	const char* m_tankShape[4][3][4][3] =
 	{
@@ -48,8 +49,8 @@ private:
 }
 	};
 private:
-	void GetMovOp(const char cOp[5], CMap& map);
-	bool IsValid(CMap& map);
+	void GetMovOp(const char cOp[5]);
+	bool IsValid();
 
 	friend class CBomb;
 };

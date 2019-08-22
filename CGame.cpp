@@ -134,15 +134,15 @@ void CGame::IniAll()
 {
 
 	m_map.ReadMap(m_mapNamelev[m_level - 1]);
-
+	
 	CTank tempTank;
 	tempTank.IniMyTank(0, 15, 2, 0);
 	m_vecTank.push_back(tempTank);
 	tempTank.IniMyTank(1, 15, m_isDouble, 0);
 	m_vecTank.push_back(tempTank);
-	tempTank.IniEne(m_map, 2);
+	tempTank.IniEne( 2);
 	m_vecTank.push_back(tempTank);
-	tempTank.IniEne(m_map, 3);
+	tempTank.IniEne(3);
 	m_vecTank.push_back(tempTank);
 }
 
@@ -175,19 +175,19 @@ void CGame::StartGame()
 					m_vecTank.erase(m_vecTank.begin() + i);//删除第i个元素
 					continue;
 				}
-				m_vecTank[i].DrawObj(m_map);
-				m_vecTank[i].MoveObj(m_map);
+				m_vecTank[i].DrawObj();
+				m_vecTank[i].MoveObj();
 			}
 			for (int i = 0; i < m_vecBomb.size(); ++i)
 			{
 				if (m_vecBomb[i].GetExist() == 0)
 				{
-					m_vecBomb[i].ClsObj(m_map);
+					m_vecBomb[i].ClsObj();
 					m_vecBomb.erase(m_vecBomb.begin() + i);//删除第i个元素
 					continue;
 				}
-				m_vecBomb[i].DrawObj(m_map);
-				m_vecBomb[i].MoveObj(m_map);
+				m_vecBomb[i].DrawObj();
+				m_vecBomb[i].MoveObj();
 			}
 
 		}

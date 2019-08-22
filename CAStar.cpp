@@ -5,19 +5,48 @@
 using std::cout;
 CAStar::PVIR_INFO CAStar::m_pVir;
 
-void CAStar::PrintPath()
+//void CAStar::PrintPath()
+//{
+//	for (int i = m_Path.size() - 1; i >= 0; i--)
+//	{
+//		CGame::WriteChar(m_Path[i].X, m_Path[i].Y); cout << "@";
+//	}
+//}
+
+
+//返回false表示需要躲避炮弹
+bool CAStar::EludeBomb(int nextx, int nexty,int nDir)
 {
-	for (int i = m_Path.size() - 1; i >= 0; i--)
+	for (int i = 0; i < CGame::m_vecBomb.size(); ++i)
 	{
-		CGame::WriteChar(m_Path[i].X, m_Path[i].Y); cout << "@";
+		if (CGame::m_vecBomb[i].GetTag() <= 1)//找我方子弹
+		{
+			int x = 0, y = 0;
+			CGame::m_vecBomb[i].GetPos(x, y);
+			if (CGame::m_vecBomb[i].GetDir() > 1 && nexty == y && nDir <= 1) //   |
+			{															     //   T
+				return false;									     //B--
+			}
+			else if (CGame::m_vecBomb[i].GetDir() <= 1 && nextx == x && nDir > 1) //   |
+			{																	  //   B
+				return false;											  //T--
+			}
+			else if (CGame::m_vecBomb[i].GetDir() <= 1 && nextx == x && nDir <= 1)	 //   |
+			{																		 //   T
+				return false;														 //   B						 
+			}																		 //   |
+			else if (CGame::m_vecBomb[i].GetDir() > 1 && nexty == y && nDir > 1)
+			{																		 //--T B--
+				return false;
+			}
+		}
 	}
+	return true;
 }
 
-
-
-void CAStar::InitMapInfo(int* pMap, int nHigh, int nWidth, int nBlock)
+void CAStar::InitMapInfo(/*int* pMap,*/ int nHigh, int nWidth, int nBlock)
 {
-	m_pMap = pMap;
+	//m_pMap = pMap;
 	m_MapHigh = nHigh;
 	m_MapWidth = nWidth;
 	m_Block = nBlock;
@@ -36,7 +65,7 @@ void CAStar::InitCoord(MYCOORD codStar, MYCOORD codEnd)
 	m_bInitCoordInfo = true;
 }
 
-bool CAStar::FindPath(CMap& map)
+bool CAStar::FindPath(bool *stop)
 {
 	//是否初始化完毕
 	if (!m_bInitCoordInfo || !m_bInitMapInfo)
@@ -65,8 +94,6 @@ bool CAStar::FindPath(CMap& map)
 
 	ZeroMemory(m_pVir, m_MapWidth*m_MapHigh);
 
-
-
 	NODE_INFO nodeStar;
 	nodeStar.codSelf = m_Start;
 	nodeStar.g = 0;
@@ -78,6 +105,10 @@ bool CAStar::FindPath(CMap& map)
 
 	while (true)
 	{
+		if ((m_Start.X==m_End.X-2 && m_Start.Y == m_End.Y )|| (m_Start.X == m_End.X + 1 &&m_Start.Y == m_End.Y))
+		{
+			*stop = true; break;
+		}
 		//Open表是否为空
 		if (m_Open.empty())
 		{
@@ -119,10 +150,6 @@ bool CAStar::FindPath(CMap& map)
 			//方向
 			nodeNew[i].codSelf.d = i;
 		}
-		//=====优化处理==================================================================================
-
-
-
 		int x1 = m_Open[nIndex].codSelf.X;
 		int y1 = m_Open[nIndex].codSelf.Y;
 		m_pVir[y1 * m_MapWidth + x1].isClose = true;
@@ -133,15 +160,15 @@ bool CAStar::FindPath(CMap& map)
 		m_Open.erase(m_Open.begin() + nIndex);
 
 		//检测扩散出来的点是否合格，是否是终点
-		for (int i = 0; i < 4; i++)
+		for (int k = 0; k < 4; k++)
 		{
-			int x = nodeNew[i].codSelf.X;
-			int y = nodeNew[i].codSelf.Y;
-
+			int x = nodeNew[k].codSelf.X;
+			int y = nodeNew[k].codSelf.Y;
+			//CGame::WriteChar(x, y); cout << "*";
 			//是不是终点
-			if (nodeNew[i].codSelf == m_End)
+			if (nodeNew[k].codSelf == m_End)
 			{
-				m_Close.push_back(nodeNew[i]);
+				m_Close.push_back(nodeNew[k]);
 				return true;
 			}
 			//是否越界
@@ -151,15 +178,16 @@ bool CAStar::FindPath(CMap& map)
 			{
 				continue;
 			}
-			
+			//判断是否是障碍物
 			bool mapp = false;
 			for (int i = x - 1; i <= x + 1; i++) {
 				if (mapp) {
 					break;
 				}
 				for (int j = y - 1; j <= y + 1; j++) {
-					if (map.m_ArrMap[1][i][j] == BORDER || map.m_ArrMap[1][i][j] == WALL_REFLECT
-						|| map.m_ArrMap[1][i][j] == WALL_BREAK) {
+					if (CMap::m_ArrMap[1][i][j] == BORDER || CMap::m_ArrMap[1][i][j] == WALL_REFLECT
+						|| CMap::m_ArrMap[1][i][j] == WALL_BREAK)//|| EludeBomb(i, j,k)==false)
+					{
 						mapp = true;
 						break;
 					}
@@ -171,22 +199,14 @@ bool CAStar::FindPath(CMap& map)
 			}
 
 
-			//=====优化处理==================================================================================
-
-
-
-
 			//判断是否在Open表和Close表中
 			if (m_pVir[y * m_MapWidth + x].isClose ||
 				m_pVir[y * m_MapWidth + x].isOpen)
 			{
 				continue;
 			}
-
-			
-
 			//将合格的点保存到Open表中
-			m_Open.push_back(nodeNew[i]);
+			m_Open.push_back(nodeNew[k]);
 
 			m_pVir[y * m_MapWidth + x].isOpen = true;
 

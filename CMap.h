@@ -14,10 +14,6 @@ public:
 	void ReadMap(const char*);
 	bool EditMap(int& lev,CGame* game);
 	int* GetMap()const;
-private:
-	int m_ArrMap[2][WEIGHT][HEIGHT] = {0};
-	
-	friend class CTank;
-	friend class CBomb;
-	friend class CAStar;
+	static int m_ArrMap[2][WEIGHT][HEIGHT];
+
 };

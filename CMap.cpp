@@ -9,7 +9,7 @@ using std::cout;
 //{
 //	//return m_ArrMap;
 //}
-
+int CMap::m_ArrMap[2][WEIGHT][HEIGHT] = {0};
 void CMap::setMap(int nZ, int nX, int nY,int val)
 {
 	m_ArrMap[nZ ][nX][nY] = val;

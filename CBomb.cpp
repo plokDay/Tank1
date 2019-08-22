@@ -3,43 +3,44 @@
 #include "CBomb.h"
 #include "CGame.h"
 using std::cout;
-void CBomb::DrawObj(CMap& map)
+void CBomb::DrawObj()
 {
 	//不是草地就画
-	if (map.m_ArrMap[1][pos.X][pos.Y] != GRASS)
+	if (CMap::m_ArrMap[1][pos.X][pos.Y] != GRASS)
 	{
 		CGame::WriteChar(pos.X, pos.Y);
 		cout <<m_shape[tag];
 	}
 	//写入地图数组
-	if (tag == 0 || tag == 1)map.setMap(0, pos.X, pos.Y, MBOMB);
-	else map.setMap(0, pos.X, pos.Y, EBOMB);
+	if (tag == 0 || tag == 1)
+		CMap::m_ArrMap[0][pos.X][pos.Y] = MBOMB;
+	else CMap::m_ArrMap[0][pos.X][pos.Y] = EBOMB;
 }
 
-void CBomb::ClsObj(CMap& map)
+void CBomb::ClsObj()
 {
 	int x = pos.X, y = pos.Y;
-	map.m_ArrMap[0][x][y] = 0;
-	if (map.m_ArrMap[1][x][y] == 0)
+	CMap::m_ArrMap[0][x][y] = 0;
+	if (CMap::m_ArrMap[1][x][y] == 0)
 	{
 		CGame::WriteChar(x, y); cout << "  ";
 	}
-	else if (map.m_ArrMap[1][x][y] == RIVER)
+	else if (CMap::m_ArrMap[1][x][y] == RIVER)
 	{
 		CGame::WriteChar(x, y); cout << "≈";
 	}
 }
 //可穿透返回0，改变m_exist
-int CBomb::CheckObj(CMap& map)
+int CBomb::CheckObj()
 {
 	int nRes = 0;
 	int nX = pos.X, nY = pos.Y;
-	switch (map.m_ArrMap[1][nX][nY])
+	switch (CMap::m_ArrMap[1][nX][nY])
 	{
 	case WALL_BREAK:m_exist = false; 
 		nRes = WALL_BREAK;
 		CGame::WriteChar(nX, nY); cout << "  ";
-		map.m_ArrMap[1][nX][nY] = 0;
+		CMap::m_ArrMap[1][nX][nY] = 0;
 		break;
 	case BORDER:m_exist = false; nRes = BORDER;break;
 	case WALL_REFLECT:m_exist = true; nRes = WALL_REFLECT;
@@ -57,7 +58,7 @@ int CBomb::CheckObj(CMap& map)
 		
 		break;
 	}
-	switch (map.m_ArrMap[0][nX][nY])
+	switch (CMap::m_ArrMap[0][nX][nY])
 	{
 	case MTANK:nRes = MTANK; break;
 	case ETANK:nRes = ETANK; break;
@@ -69,12 +70,12 @@ int CBomb::CheckObj(CMap& map)
 	
 }
 
-void CBomb::CollisionObj(CMap& map,int check)
+void CBomb::CollisionObj(int check)
 {
 	isMe = true;
 	if (check == MTANK && tag >= 2)//敌方打中我方坦克
 	{
-		ClsObj(map);
+		ClsObj();
 		m_exist = false;
 		for (int i = 0; i < 2; ++i)
 		{
@@ -85,13 +86,12 @@ void CBomb::CollisionObj(CMap& map,int check)
 					tag == 2 ? CGame::m_vecTank[i].m_blood-=2 : CGame::m_vecTank[i].m_blood--;//Ene1攻击力为2 Ene2攻击力1
 					if (CGame::m_vecTank[i].m_blood <= 0)
 					{//复活
-						CGame::m_vecTank[i].ClsObj(map);
+						CGame::m_vecTank[i].ClsObj();
 						CGame::m_vecTank[i].m_revive--;
 						CGame::m_vecTank[i].IniMyTank(i, 7, CGame::m_vecTank[i].m_revive, CGame::m_vecTank[i].m_score);
 					}
 				}
 			}
-			
 		}
 		if (CGame::m_vecTank[0].m_revive <=0&& CGame::m_vecTank[1].m_revive <= 0)
 		{
@@ -101,7 +101,7 @@ void CBomb::CollisionObj(CMap& map,int check)
 	else if (check == ETANK && tag <=1)//我方打中敌方坦克
 	{
 		//子弹消失
-		ClsObj(map);
+		ClsObj();
 		m_exist = false;
 	
 		for (int i=1;i< CGame::m_vecTank.size();++i)
@@ -114,7 +114,7 @@ void CBomb::CollisionObj(CMap& map,int check)
 				{//敌方坦克不复活
 					//坦克加分
 					tag == 0 ? CGame::m_vecTank[0].m_score++ : CGame::m_vecTank[1].m_score++;
-					CGame::m_vecTank[i].ClsObj(map);
+					CGame::m_vecTank[i].ClsObj();
 					CGame::m_vecTank[i].m_revive--;
 					//CGame::m_vecTank[i].IniMyTank(0, 15, CGame::m_vecTank[i].m_revive);
 					break;
@@ -142,13 +142,13 @@ void CBomb::CollisionObj(CMap& map,int check)
 	isMe = false;
 }
 
-void CBomb::MoveObj(CMap& map)
+void CBomb::MoveObj()
 {
 	
 	if (m_exist)//&& clock() - lastClock > interval)
 	{
 		//lastClock = clock();//重新开始计时
-		ClsObj(map);//填充原背景
+		ClsObj();//填充原背景
 
 		switch (nDir)	//子弹坐标变化
 		{
@@ -157,13 +157,13 @@ void CBomb::MoveObj(CMap& map)
 		case LEFT:--pos.X; break;
 		case RIGHT:++pos.X; break;
 		}
-		CollisionObj(map, CheckObj(map)) ;//检测坐标变化后的位置是否合法
+		CollisionObj( CheckObj()) ;//检测坐标变化后的位置是否合法
 		if (m_exist)
-			DrawObj(map);//如果当前坐标是草地就画草地
+			DrawObj();//如果当前坐标是草地就画草地
 	}
 }
 
-void CBomb::GreateB(CTank& tank, CMap& map)
+void CBomb::GreateB(CTank& tank)
 {
 	CBomb tempB;
 	//tempB.lastClock = clock();//子弹速度
@@ -180,7 +180,7 @@ void CBomb::GreateB(CTank& tank, CMap& map)
 	default:
 		break;
 	}
-	tempB.CheckObj(map);
+	tempB.CheckObj();
 	if (tempB.m_exist)//检测发射位置是否合法,合法就创建
 	{
 		CGame::m_vecBomb.push_back(tempB);
