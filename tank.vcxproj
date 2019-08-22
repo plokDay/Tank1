@@ -115,8 +115,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CAStar.cpp" />
+    <ClCompile Include="CAStar.h" />
     <ClCompile Include="CBomb.cpp" />
-    <ClCompile Include="CDraw.cpp" />
     <ClCompile Include="CGame.cpp" />
     <ClCompile Include="CMap.cpp" />
     <ClCompile Include="CTank.cpp" />
@@ -124,7 +125,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBomb.h" />
-    <ClInclude Include="CDraw.h" />
     <ClInclude Include="CBaseObj.h" />
     <ClInclude Include="CGame.h" />
     <ClInclude Include="CMap.h" />

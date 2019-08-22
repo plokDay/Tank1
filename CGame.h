@@ -3,7 +3,7 @@
 #include "CMap.h"
 #include "CTank.h"
 #include "CBomb.h"
-#include "CDraw.h"
+
 using std::vector;
 class CTank;
 class CBomb;
@@ -25,6 +25,8 @@ public:
 	static vector<CTank>  m_vecTank;
 	static vector<CBomb>  m_vecBomb;
 	static void CheckGame();
+	static void WriteChar(int x, int y, int foreColor = 15, int backcolor = 0);
+	static void set();
 public:
 	static int m_stop;//1继续游戏-1暂停-2结束2下一关
 private:

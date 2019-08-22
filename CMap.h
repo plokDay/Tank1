@@ -19,4 +19,5 @@ private:
 	
 	friend class CTank;
 	friend class CBomb;
+	friend class CAStar;
 };

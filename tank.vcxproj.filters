@@ -21,9 +21,6 @@
     <ClCompile Include="CGame.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CDraw.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -31,6 +28,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CBomb.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CAStar.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CAStar.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -42,9 +45,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CGame.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CDraw.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CTank.h">

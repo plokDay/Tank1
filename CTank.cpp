@@ -1,10 +1,11 @@
 #include <iostream>
 #include <time.h>
 #include "CTank.h"
-#include "CDraw.h"
+
 #include "Data.h"
 #include "CBomb.h"
 #include "CGame.h"
+#include "CAStar.h"
 using std::cout;
 
 void CTank::DrawObj(CMap& map)
@@ -12,23 +13,23 @@ void CTank::DrawObj(CMap& map)
 
 	int x = pos.X;
 	int y = pos.Y;
-	for (int y = pos.Y - 1,i=0; y < pos.Y + 2; ++y,++i)
+	for (int y = pos.Y - 1, i = 0; y < pos.Y + 2; ++y, ++i)
 	{
-		for (int x = pos.X - 1,j=0; x < pos.X + 2; ++x,++j)
+		for (int x = pos.X - 1, j = 0; x < pos.X + 2; ++x, ++j)
 		{
 			//不是草地就画
-			if (map.m_ArrMap[1][x][y]!=GRASS)
+			if (map.m_ArrMap[1][x][y] != GRASS)
 			{
-				CDraw::WriteChar(x, y, m_color, 0);
+				CGame::WriteChar(x, y, m_color, 0);
 				cout << m_tankShape[tag][i][nDir][j];
 			}
 			//写入地图数组
 			if (tag == 0 || tag == 1)map.setMap(0, x, y, MTANK);
 			else map.setMap(0, x, y, ETANK);
 		}
-		
+
 	}
-	
+
 }
 
 void CTank::ClsObj(CMap& map)
@@ -40,20 +41,20 @@ void CTank::ClsObj(CMap& map)
 			map.m_ArrMap[0][x][y] = 0;
 			if (map.m_ArrMap[1][x][y] == 0)
 			{
-				CDraw::WriteChar(x, y); cout << "  ";
+				CGame::WriteChar(x, y); cout << "  ";
 			}
 			else if (map.m_ArrMap[1][x][y] == RIVER)
 			{
-				CDraw::WriteChar(x, y); cout << "≈";
+				CGame::WriteChar(x, y); cout << "≈";
 			}
 		}
 	}
 }
 
-void CTank::IniMyTank(int mtag,int color,int revive,int score)
+void CTank::IniMyTank(int mtag, int color, int revive, int score)
 {
-	pos.X = WEIGHT/2-5 + mtag * 10;
-	pos.Y = HEIGHT-3;
+	pos.X = WEIGHT / 2 - 5 + mtag * 10;
+	pos.Y = HEIGHT - 3;
 	nDir = UP;
 	m_score = 0;
 	m_bulletCD = 10;
@@ -68,10 +69,10 @@ void CTank::IniEne(CMap& map, int mtag)
 	do {
 		pos.X = 3 + rand() % WEIGHT - 4;
 		pos.Y = 2 + rand() % 13;
-	} while (IsValid(map)==0);
+	} while (IsValid(map) == 0);
 	nDir = rand() % 4;
 	m_bulletCD = 10;
-	tag == 2 ? m_interval = 300 : m_interval = 0;//Ene1的速度快
+	tag == 2 ? m_interval = 200 : m_interval = 100;//Ene1的速度快
 	m_lastClock = clock();
 	tag = mtag;
 	m_color = 15;
@@ -85,39 +86,75 @@ void CTank::MoveObj(CMap& map)
 	++m_bulletCD;
 	if (tag == 0)//我方
 	{
-		GetMovOp("WASDX", map);
+		GetMovOp("WASDE", map);
 	}
 	else if (tag == 1)//友方
 	{
-		GetMovOp("IJKLM", map);
+		GetMovOp("IJKLU", map);
 	}
-	else if(clock()-m_lastClock>m_interval) //敌方
+	else if (clock() - m_lastClock > m_interval) //敌方
 	{
 		m_lastClock = clock();
-		if (tag==2?(CheckObj(map) == 0):	//tag=2不能过河
-			( CheckObj(map) == 0|| CheckObj(map) == RIVER))
+		if (tag == 2) //Ene1的移动
 		{
-			ClsObj(map);
-			switch (nDir)
+			if (CheckObj(map) == 0)	//tag=2不能过河
+			//( CheckObj(map) == 0|| CheckObj(map) == RIVER))
 			{
-			case UP:pos.Y--; break;
-			case DOWN:pos.Y++; break;
-			case LEFT:pos.X--; break;
-			case RIGHT:pos.X++; break;
-			default:
-				break;
+				ClsObj(map);
+				switch (nDir)
+				{
+				case UP:pos.Y--; break;
+				case DOWN:pos.Y++; break;
+				case LEFT:pos.X--; break;
+				case RIGHT:pos.X++; break;
+				default:
+					break;
+				}
+				DrawObj(map);
 			}
-			DrawObj(map);
+			else nDir = rand() % 4;
 		}
-		else
-			nDir = rand() % 4;
-		if (m_bulletCD>=10&&rand()%6==0)//如果CD时间到了有三分之一可能性发射炮弹
+		if (tag==3)//Ene2的移动
+		{
+			//if (CheckObj(map) == 0|| CheckObj(map) == RIVER)//Ene2能过河
+			{
+				ClsObj(map);
+				CAStar as;
+				as.InitMapInfo((int*)map.m_ArrMap, HEIGHT, WEIGHT, 0);
+				as.InitCoord({ pos.X,pos.Y}, { WEIGHT/2, HEIGHT-9 });
+				if (as.FindPath(map))
+				{
+					as.GetPath();
+					as.PrintPath();
+
+					for (int i = as.m_Path.size() - 1; i > 0; i--)
+					{
+						nDir = as.m_Path[i].d;
+						break;
+
+					}
+				}
+				switch (nDir)
+				{
+				case UP:pos.Y--; break;
+				case DOWN:pos.Y++; break;
+				case LEFT:pos.X--; break;
+				case RIGHT:pos.X++; break;
+				default:
+					break;
+				}
+				DrawObj(map);
+
+			}
+			
+		}
+		if (m_bulletCD >= 10 && rand() % 6 == 0)//如果CD时间到了有三分之一可能性发射炮弹
 		{
 			m_bulletCD = 0;
 			Fire(map);
 		}
 	}
-	
+
 }
 //可穿透返回0
 int CTank::CheckObj(CMap& map)
@@ -137,7 +174,7 @@ int CTank::CheckObj(CMap& map)
 		{
 		case BORDER:nRes = BORDER; break;
 		case WALL_REFLECT:nRes = WALL_REFLECT; break;
-		case WALL_BREAK:nRes= WALL_BREAK; break;
+		case WALL_BREAK:nRes = WALL_BREAK; break;
 		case RIVER:nRes = RIVER; break;
 		default:
 			break;
@@ -146,15 +183,15 @@ int CTank::CheckObj(CMap& map)
 		{
 		case MTANK:nRes = MTANK; break;
 		case ETANK:nRes = ETANK; break;
-		
+
 		default:
 			break;
 		}
-		if (tag==2)//Ene1需要躲我方子弹
+		if (tag >= 2)//Ene需要躲我方子弹
 		{
-			for (int i=0;i<CGame::m_vecBomb.size();++i)
+			for (int i = 0; i < CGame::m_vecBomb.size(); ++i)
 			{
-				if (CGame::m_vecBomb[i].GetTag()<=1)//找我方子弹
+				if (CGame::m_vecBomb[i].GetTag() <= 1)//找我方子弹
 				{
 					int x = 0, y = 0;
 					CGame::m_vecBomb[i].GetPos(x, y);
@@ -170,7 +207,7 @@ int CTank::CheckObj(CMap& map)
 					{																		 //   T
 						nRes = MBOMB; break;												 //   B						 
 					}																		 //   |
-					else if (CGame::m_vecBomb[i].GetDir() > 1 && nexty == y && nDir > 1)     
+					else if (CGame::m_vecBomb[i].GetDir() > 1 && nexty == y && nDir > 1)
 					{																		 //--T B--
 						nRes = MBOMB; break;
 					}
@@ -196,41 +233,42 @@ void CTank::Fire(CMap& map)
 	int x = pos.X, y = pos.Y;
 	const char *patter[4] = { "●","●","■","■" };
 	switch (nDir)//可缩写
-		{
-		case UP:
-			if (map.m_ArrMap[1][x][y + 1] != GRASS) { CDraw::WriteChar(x, y + 1); cout << patter[tag]; }
-			if (map.m_ArrMap[1][x][y] != GRASS) { CDraw::WriteChar(x, y); cout << "┃"; }
-			if (map.m_ArrMap[1][x][y - 1] != GRASS) { CDraw::WriteChar(x, y - 1); cout << "  "; }
-			break;
-		case DOWN:
-			if (map.m_ArrMap[1][x][y - 1] != GRASS) {CDraw::WriteChar(x, y - 1);cout<< patter[tag];	}
-			if (map.m_ArrMap[1][x][y] != GRASS) {CDraw::WriteChar(x, y);cout<< "┃";			   }
-			if (map.m_ArrMap[1][x][y + 1] != GRASS) {CDraw::WriteChar(x, y + 1);cout<< "  ";		}
-			break;
-		case LEFT:
-			if (map.m_ArrMap[1][x + 1][y] != GRASS) {CDraw::WriteChar(x + 1, y);cout<< patter[tag];}
-			if (map.m_ArrMap[1][x][y] != GRASS) {CDraw::WriteChar(x, y);cout<< "━";			  }
-			if (map.m_ArrMap[1][x - 1][y] != GRASS) {CDraw::WriteChar(x - 1, y);cout<< "  ";	   }
-			break;
-		case RIGHT:
-			if (map.m_ArrMap[1][x + 1][y] != GRASS) {CDraw::WriteChar(x + 1, y);cout<< "  ";		 }
-			if (map.m_ArrMap[1][x][y] != GRASS) {CDraw::WriteChar(x, y);cout<< "━";				}
-			if (map.m_ArrMap[1][x + 1][y] != GRASS) {CDraw::WriteChar(x - 1, y);cout<< patter[tag];	 }
-			break;
-		}
-	if (tag>=2)
+	{
+	case UP:
+		if (map.m_ArrMap[1][x][y + 1] != GRASS) { CGame::WriteChar(x, y + 1); cout << patter[tag]; }
+		if (map.m_ArrMap[1][x][y] != GRASS) { CGame::WriteChar(x, y); cout << "┃"; }
+		if (map.m_ArrMap[1][x][y - 1] != GRASS) { CGame::WriteChar(x, y - 1); cout << "  "; }
+		break;
+	case DOWN:
+		if (map.m_ArrMap[1][x][y - 1] != GRASS) { CGame::WriteChar(x, y - 1); cout << patter[tag]; }
+		if (map.m_ArrMap[1][x][y] != GRASS) { CGame::WriteChar(x, y); cout << "┃"; }
+		if (map.m_ArrMap[1][x][y + 1] != GRASS) { CGame::WriteChar(x, y + 1); cout << "  "; }
+		break;
+	case LEFT:
+		if (map.m_ArrMap[1][x + 1][y] != GRASS) { CGame::WriteChar(x + 1, y); cout << patter[tag]; }
+		if (map.m_ArrMap[1][x][y] != GRASS) { CGame::WriteChar(x, y); cout << "━"; }
+		if (map.m_ArrMap[1][x - 1][y] != GRASS) { CGame::WriteChar(x - 1, y); cout << "  "; }
+		break;
+	case RIGHT:
+		if (map.m_ArrMap[1][x + 1][y] != GRASS) { CGame::WriteChar(x + 1, y); cout << "  "; }
+		if (map.m_ArrMap[1][x][y] != GRASS) { CGame::WriteChar(x, y); cout << "━"; }
+		if (map.m_ArrMap[1][x + 1][y] != GRASS) { CGame::WriteChar(x - 1, y); cout << patter[tag]; }
+		break;
+	}
+	if (tag >= 2)
 	{
 		CBomb::GreateB(*this, map);//创建子弹
-		if (rand() % 2 == 0) tag==2? m_lastClock += clock() / 10: m_lastClock += clock() / 8;//坦克暂停的间隔时间加长
-		else if (nDir % 2 != 0) nDir -= 1; else nDir += 1;//坦克转向
+		nDir = rand() % 4;
+		//if (rand() % 2 == 0) tag == 2 ? m_lastClock += clock() / 10 : m_lastClock += clock() / 8;//坦克暂停的间隔时间加长
+		//else if (nDir % 2 != 0) nDir -= 1; else nDir += 1;//坦克转向
 	}
 	else//我方坦克需要等CD时间过了
 	{
-		if (m_bulletCD>=10)
+		if (m_bulletCD >= 10)
 		{
 			m_bulletCD = 0;
 			CBomb::GreateB(*this, map);//创建子弹
-			
+
 		}
 	}
 }
@@ -327,8 +365,8 @@ bool CTank::IsValid(CMap& map)
 	{
 		for (int x = pos.X - 1; x < pos.X + 2; ++x)
 		{
-			if (map.m_ArrMap[1][x][y]==BORDER|| map.m_ArrMap[1][x][y] == WALL_BREAK
-				|| map.m_ArrMap[1][x][y] == WALL_REFLECT|| map.m_ArrMap[1][x][y] == RIVER)
+			if (map.m_ArrMap[1][x][y] == BORDER || map.m_ArrMap[1][x][y] == WALL_BREAK
+				|| map.m_ArrMap[1][x][y] == WALL_REFLECT || map.m_ArrMap[1][x][y] == RIVER)
 			{
 				return false;
 			}

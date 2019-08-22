@@ -17,90 +17,110 @@ void CGame::CheckGame()
 		{
 			if (CGame::m_vecTank[i].GetRevive() > 0)
 			{
-				isWin=false;
+				isWin = false;
 			}
 		}
-		 
+
 	}
 	if (isWin)CGame::m_stop = 2;//表示赢了
-	
+
 }
 
 
+void CGame::WriteChar(int x, int y, int foreColor /*= 15*/, int backcolor /*= 0*/)
+{
+	HANDLE hStout = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO cci;
+	cci.dwSize = 1;
+	cci.bVisible = FALSE;
+	SetConsoleCursorInfo(hStout, &cci);
+	COORD pos = { x * 2,y };
+	SetConsoleTextAttribute(hStout, foreColor + backcolor * 0x10);
+	SetConsoleCursorPosition(hStout, pos);
+}
+
+void CGame::set()
+{
+	HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+	DWORD mode = 0;
+	GetConsoleMode(hInput, &mode); //initialize
+	mode |= ENABLE_MOUSE_INPUT;
+	SetConsoleMode(hInput, mode);
+}
+
 int CGame::Menu()
 {
-	CDraw::cls();
-	//system("cls");
+	system("cls");
 	int i = 0;//临时变量，用来移动坦克
 	int nOp = 1;//记录选项
-	CDraw::WriteChar(WEIGHT / 2, 31); cout << "单人模式";
-	CDraw::WriteChar(WEIGHT / 2, 32); cout << "双人模式";
-	CDraw::WriteChar(WEIGHT / 2, 33); cout << "编辑地图";
-	CDraw::WriteChar(WEIGHT / 2, 34);	cout << "读取存档";
-	CDraw::WriteChar(WEIGHT / 2, 35);	cout << "退出游戏";
+	CGame::WriteChar(WEIGHT / 2, 31); cout << "单人模式";
+	CGame::WriteChar(WEIGHT / 2, 32); cout << "双人模式";
+	CGame::WriteChar(WEIGHT / 2, 33); cout << "编辑地图";
+	CGame::WriteChar(WEIGHT / 2, 34);	cout << "读取存档";
+	CGame::WriteChar(WEIGHT / 2, 35);	cout << "退出游戏";
 	while (1)
 	{
 		if (i == WEIGHT - 1)
 		{
 			i = 0;
 		}
-		
-		CDraw::WriteChar(i++, 3, 7, 0);cout<<("                           @@@                                                                 ");
-		CDraw::WriteChar(i, 4, 7, 0);  cout<<("                        @#####@                                                               ");
-		CDraw::WriteChar(i, 5, 7, 0);  cout << ("                   @#############@##@                                                  ");
-		CDraw::WriteChar(i, 6, 7, 0);  cout << ("                 @###############@@######@                                               ");
-		CDraw::WriteChar(i, 7, 7, 0);  cout << ("                @################@@@########@                                             ");
-		CDraw::WriteChar(i, 8, 7, 0);  cout << ("                       @#########@@##################################################@    ");
-		CDraw::WriteChar(i, 9, 7, 0);  cout << ("                       @@@@@@######@#######@                                             ");
-		CDraw::WriteChar(i, 10, 7, 0); cout << ("      @@@@@@@@@@@@@@@@@#####################@@@@@@@                                        ");
-		CDraw::WriteChar(i, 11, 7, 0); cout << ("    @##############################################@@@@@                                 ");
-		CDraw::WriteChar(i, 12, 7, 0); cout << ("    @###################################################@@@@@@@@@@                                 ");
-		CDraw::WriteChar(i, 13, 7, 0); cout << ("    @##############################################################@                                 ");
-		CDraw::WriteChar(i, 14, 7, 0); cout << ("      @##############################################################@                    ");
-		CDraw::WriteChar(i, 15, 7, 0); cout << ("      @###############################################################@                    ");
-		CDraw::WriteChar(i, 16, 7, 0); cout << ("      @########     @##@    @##@      @##@     @###@    @##@    ######@              ");
-		CDraw::WriteChar(i, 17, 7, 0); cout << ("       @######    @#####@ @######@  @######@  @#####@ @#######@   ###@                     ");
-		CDraw::WriteChar(i, 18, 7, 0); cout << ("          @####     @##@    @##@      @##@     @###@    @##@    ####@                       ");
-		CDraw::WriteChar(i, 19, 7, 0); cout << ("              @###############################################%@                          ");
-	
+
+		CGame::WriteChar(i++, 3, 7, 0); cout << ("                           @@@                                                                 ");
+		CGame::WriteChar(i, 4, 7, 0);  cout << ("                        @#####@                                                               ");
+		CGame::WriteChar(i, 5, 7, 0);  cout << ("                   @#############@##@                                                  ");
+		CGame::WriteChar(i, 6, 7, 0);  cout << ("                 @###############@@######@                                               ");
+		CGame::WriteChar(i, 7, 7, 0);  cout << ("                @################@@@########@                                             ");
+		CGame::WriteChar(i, 8, 7, 0);  cout << ("                       @#########@@##################################################@    ");
+		CGame::WriteChar(i, 9, 7, 0);  cout << ("                       @@@@@@######@#######@                                             ");
+		CGame::WriteChar(i, 10, 7, 0); cout << ("      @@@@@@@@@@@@@@@@@#####################@@@@@@@                                        ");
+		CGame::WriteChar(i, 11, 7, 0); cout << ("    @##############################################@@@@@                                 ");
+		CGame::WriteChar(i, 12, 7, 0); cout << ("    @###################################################@@@@@@@@@@                                 ");
+		CGame::WriteChar(i, 13, 7, 0); cout << ("    @##############################################################@                                 ");
+		CGame::WriteChar(i, 14, 7, 0); cout << ("      @##############################################################@                    ");
+		CGame::WriteChar(i, 15, 7, 0); cout << ("      @###############################################################@                    ");
+		CGame::WriteChar(i, 16, 7, 0); cout << ("      @########     @##@    @##@      @##@     @###@    @##@    ######@              ");
+		CGame::WriteChar(i, 17, 7, 0); cout << ("       @######    @#####@ @######@  @######@  @#####@ @#######@   ###@                     ");
+		CGame::WriteChar(i, 18, 7, 0); cout << ("          @####     @##@    @##@      @##@     @###@    @##@    ####@                       ");
+		CGame::WriteChar(i, 19, 7, 0); cout << ("              @###############################################%@                          ");
+
 		if (GetAsyncKeyState(VK_DOWN) & 1)
 		{
-			if (nOp==5)nOp = 0;
+			if (nOp == 5)nOp = 0;
 			++nOp;
 		}
-		if (GetAsyncKeyState(VK_UP) & 1) 
-		{ 
-			if (nOp==1)nOp = 6;
+		if (GetAsyncKeyState(VK_UP) & 1)
+		{
+			if (nOp == 1)nOp = 6;
 			--nOp;
 		}
-		
+
 		switch (nOp)
 		{
 		case 1:
-			CDraw::WriteChar(WEIGHT / 2, 35); cout << "退出游戏";
-			CDraw::WriteChar(WEIGHT / 2, 31, 0, 7); cout << "单人模式";
-			CDraw::WriteChar(WEIGHT / 2, 32); cout << "双人模式"; break;
+			CGame::WriteChar(WEIGHT / 2, 35); cout << "退出游戏";
+			CGame::WriteChar(WEIGHT / 2, 31, 0, 7); cout << "单人模式";
+			CGame::WriteChar(WEIGHT / 2, 32); cout << "双人模式"; break;
 		case 2:
-			CDraw::WriteChar(WEIGHT / 2, 31); cout << "单人模式";
-			CDraw::WriteChar(WEIGHT / 2, 32, 0, 7); cout << "双人模式";
-			CDraw::WriteChar(WEIGHT / 2, 33); cout << "编辑地图"; break;
+			CGame::WriteChar(WEIGHT / 2, 31); cout << "单人模式";
+			CGame::WriteChar(WEIGHT / 2, 32, 0, 7); cout << "双人模式";
+			CGame::WriteChar(WEIGHT / 2, 33); cout << "编辑地图"; break;
 		case 3:
-			CDraw::WriteChar(WEIGHT / 2, 32); cout << "双人模式";
-			CDraw::WriteChar(WEIGHT / 2, 33,0,7);cout << "编辑地图";
-			CDraw::WriteChar(WEIGHT / 2, 34); cout << "读取存档"; break;
+			CGame::WriteChar(WEIGHT / 2, 32); cout << "双人模式";
+			CGame::WriteChar(WEIGHT / 2, 33, 0, 7); cout << "编辑地图";
+			CGame::WriteChar(WEIGHT / 2, 34); cout << "读取存档"; break;
 		case 4:
-			CDraw::WriteChar(WEIGHT / 2, 33); cout << "编辑地图";
-			CDraw::WriteChar(WEIGHT / 2, 34,0,7);cout << "读取存档";
-			CDraw::WriteChar(WEIGHT / 2, 35); cout << "退出游戏"; break;
+			CGame::WriteChar(WEIGHT / 2, 33); cout << "编辑地图";
+			CGame::WriteChar(WEIGHT / 2, 34, 0, 7); cout << "读取存档";
+			CGame::WriteChar(WEIGHT / 2, 35); cout << "退出游戏"; break;
 		case 5:
-			CDraw::WriteChar(WEIGHT / 2, 34); cout << "读取存档";
-			CDraw::WriteChar(WEIGHT / 2, 35, 0, 7); cout << "退出游戏";
-			CDraw::WriteChar(WEIGHT / 2, 31); cout << "单人模式"; break;
+			CGame::WriteChar(WEIGHT / 2, 34); cout << "读取存档";
+			CGame::WriteChar(WEIGHT / 2, 35, 0, 7); cout << "退出游戏";
+			CGame::WriteChar(WEIGHT / 2, 31); cout << "单人模式"; break;
 		}
-		CDraw::WriteChar(2, 2);//恢复颜色
+		CGame::WriteChar(2, 2);//恢复颜色
 		if (GetAsyncKeyState(VK_RETURN) & 1)
 		{
-			if (nOp>=1&&nOp<=5)
+			if (nOp >= 1 && nOp <= 5)
 			{
 				break;
 			}
@@ -112,13 +132,13 @@ int CGame::Menu()
 }
 void CGame::IniAll()
 {
-	
-	m_map.ReadMap(m_mapNamelev[m_level-1]);
-	
+
+	m_map.ReadMap(m_mapNamelev[m_level - 1]);
+
 	CTank tempTank;
-	tempTank.IniMyTank(0, 15, 2,0);
+	tempTank.IniMyTank(0, 15, 2, 0);
 	m_vecTank.push_back(tempTank);
-	tempTank.IniMyTank(1, 15, m_isDouble,0);
+	tempTank.IniMyTank(1, 15, m_isDouble, 0);
 	m_vecTank.push_back(tempTank);
 	tempTank.IniEne(m_map, 2);
 	m_vecTank.push_back(tempTank);
@@ -128,13 +148,12 @@ void CGame::IniAll()
 
 void CGame::StartGame()
 {
-	CDraw::cls();
-	//system("cls");
+	system("cls");
 	m_map.DrawMap();
-	
+
 	while (1)
 	{
-		
+
 		if (m_stop == 2)//游戏进入下一关
 		{
 			vector<CBomb>().swap(m_vecBomb);//清空并释放内存
@@ -143,15 +162,17 @@ void CGame::StartGame()
 			if (m_level > 3) break;//如果通过最后一关就跳出
 			m_stop = 1;
 			IniAll();
+			system("cls");
+			m_map.DrawMap();
 		}
-		if (m_stop==1)
+		if (m_stop == 1)
 		{
-			
+
 			for (int i = 0; i < m_vecTank.size(); ++i)
 			{
-				if (m_vecTank[i].GetRevive()<=0)
+				if (m_vecTank[i].GetRevive() <= 0)
 				{
-					m_vecTank.erase(m_vecTank.begin()+i);//删除第i个元素
+					m_vecTank.erase(m_vecTank.begin() + i);//删除第i个元素
 					continue;
 				}
 				m_vecTank[i].DrawObj(m_map);
@@ -168,26 +189,26 @@ void CGame::StartGame()
 				m_vecBomb[i].DrawObj(m_map);
 				m_vecBomb[i].MoveObj(m_map);
 			}
-			
+
 		}
 		PrintUI();
-		if (m_stop==-2)
+		if (m_stop == -2)
 		{
 			vector<CBomb>().swap(m_vecBomb);//清空并释放内存
 			vector<CTank>().swap(m_vecTank);//清空并释放内存
 			break;//游戏结束
 		}
-		
+
 		if (GetAsyncKeyState(VK_RCONTROL) & 1)	//右边的CTRL存档
 		{
 			m_stop = -1;
 			SaveGame();
-			CDraw::WriteChar(WEIGHT / 2+30, HEIGHT+2);
+			CGame::WriteChar(WEIGHT / 2 + 30, HEIGHT + 2);
 			cout << "保存成功";
 			Sleep(50);
-			CDraw::WriteChar(WEIGHT / 2 + 30, HEIGHT + 2);
+			CGame::WriteChar(WEIGHT / 2 + 30, HEIGHT + 2);
 			cout << "        ";
-			
+
 		}
 		if (GetAsyncKeyState(VK_SPACE) & 1)	//空格暂停
 		{
@@ -215,7 +236,7 @@ void CGame::SetOld()
 }
 
 
-CMap& CGame::GetMap() 
+CMap& CGame::GetMap()
 {
 	return m_map;
 }
@@ -259,11 +280,11 @@ void CGame::ReadGame()
 		printf("失败\n");
 	fread(m_map.GetMap(), 4 * 2 * HEIGHT*WEIGHT, 1, pFile);
 	fscanf_s(pFile, "%d\n", &m_stop);
-	fscanf_s(pFile, "%d\n",&m_level);
+	fscanf_s(pFile, "%d\n", &m_level);
 	fscanf_s(pFile, "%d\n", &m_isDouble);
 	fscanf_s(pFile, "%d\n", &tankCount);
 	fscanf_s(pFile, "%d\n", &bombCount);
-	for (int i=0;i< tankCount;++i)
+	for (int i = 0; i < tankCount; ++i)
 	{
 		fread(&tempTank, sizeof(CTank), 1, pFile);
 		m_vecTank.push_back(tempTank);
@@ -273,36 +294,36 @@ void CGame::ReadGame()
 		fread(&tempBomb, sizeof(CBomb), 1, pFile);
 		m_vecBomb.push_back(tempBomb);
 	}
-	
+
 	fclose(pFile);
 }
 
-const char* CGame::GetMapName(int index) 
+const char* CGame::GetMapName(int index)
 {
 	return m_mapNamelev[index];
 }
 
 void CGame::PrintUI() const
 {
-	CDraw::WriteChar(5, HEIGHT );
-	cout << "--------\n             W   \n          A  X  D\n             S   \n          --------";
-	if (m_isDouble==2)
+	CGame::WriteChar(5, HEIGHT);
+	cout << "--------\n             W   \n          A  E  D\n             S   \n          --------";
+	if (m_isDouble == 2)
 	{
-		CDraw::WriteChar(WEIGHT - 9, HEIGHT);cout << "--------"; 
-		CDraw::WriteChar(WEIGHT - 9, HEIGHT+1);   cout << "   I   ";
-		CDraw::WriteChar(WEIGHT - 9, HEIGHT + 2); cout << "J  M  L";
-		CDraw::WriteChar(WEIGHT - 9, HEIGHT + 3); cout << "   K   ";
-		CDraw::WriteChar(WEIGHT - 9, HEIGHT+4); cout << "--------";
-		CDraw::WriteChar(WEIGHT / 2 + 10, HEIGHT + 1);
+		CGame::WriteChar(WEIGHT - 9, HEIGHT); cout << "--------";
+		CGame::WriteChar(WEIGHT - 9, HEIGHT + 1);   cout << "   I   ";
+		CGame::WriteChar(WEIGHT - 9, HEIGHT + 2); cout << "J  U  L";
+		CGame::WriteChar(WEIGHT - 9, HEIGHT + 3); cout << "   K   ";
+		CGame::WriteChar(WEIGHT - 9, HEIGHT + 4); cout << "--------";
+		CGame::WriteChar(WEIGHT / 2 + 10, HEIGHT + 1);
 		cout << "Blood:" << m_vecTank[1].GetBlood() << "   Revive:" << m_vecTank[1].GetRevive() <<
 			"   Score:" << m_vecTank[1].GetScore();
 	}
-	CDraw::WriteChar(WEIGHT/2-7, HEIGHT + 2);
+	CGame::WriteChar(WEIGHT / 2 - 7, HEIGHT + 2);
 	cout << "SPACE暂停 BACK退出  RCTRL存档 ";
-	CDraw::WriteChar(WEIGHT / 2-1, HEIGHT);
-	cout << "Level"<<GetLevel();
-	CDraw::WriteChar(WEIGHT / 2 - 25, HEIGHT+1);
-	cout << "Blood:" << m_vecTank[0].GetBlood() << "   Revive:" << m_vecTank[0].GetRevive()<<
-		"   Score:"<< m_vecTank[0].GetScore();
+	CGame::WriteChar(WEIGHT / 2 - 1, HEIGHT);
+	cout << "Level" << GetLevel();
+	CGame::WriteChar(WEIGHT / 2 - 25, HEIGHT + 1);
+	cout << "Blood:" << m_vecTank[0].GetBlood() << "   Revive:" << m_vecTank[0].GetRevive() <<
+		"   Score:" << m_vecTank[0].GetScore();
 }
 

@@ -1,7 +1,6 @@
 #include <iostream>
 #include <time.h>
 #include "CBomb.h"
-#include "CDraw.h"
 #include "CGame.h"
 using std::cout;
 void CBomb::DrawObj(CMap& map)
@@ -9,7 +8,7 @@ void CBomb::DrawObj(CMap& map)
 	//不是草地就画
 	if (map.m_ArrMap[1][pos.X][pos.Y] != GRASS)
 	{
-		CDraw::WriteChar(pos.X, pos.Y);
+		CGame::WriteChar(pos.X, pos.Y);
 		cout <<m_shape[tag];
 	}
 	//写入地图数组
@@ -23,11 +22,11 @@ void CBomb::ClsObj(CMap& map)
 	map.m_ArrMap[0][x][y] = 0;
 	if (map.m_ArrMap[1][x][y] == 0)
 	{
-		CDraw::WriteChar(x, y); cout << "  ";
+		CGame::WriteChar(x, y); cout << "  ";
 	}
 	else if (map.m_ArrMap[1][x][y] == RIVER)
 	{
-		CDraw::WriteChar(x, y); cout << "≈";
+		CGame::WriteChar(x, y); cout << "≈";
 	}
 }
 //可穿透返回0，改变m_exist
@@ -39,7 +38,7 @@ int CBomb::CheckObj(CMap& map)
 	{
 	case WALL_BREAK:m_exist = false; 
 		nRes = WALL_BREAK;
-		CDraw::WriteChar(nX, nY); cout << "  ";
+		CGame::WriteChar(nX, nY); cout << "  ";
 		map.m_ArrMap[1][nX][nY] = 0;
 		break;
 	case BORDER:m_exist = false; nRes = BORDER;break;
