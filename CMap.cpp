@@ -88,6 +88,7 @@ bool CMap::EditMap(int& lev,CGame* game)
 	CGame::WriteChar(5, HEIGHT + 2); cout << "Right Click: 填充空白";
 	CGame::WriteChar(25, HEIGHT+2); cout << "Press 'BACK': 取消并退出";
 	CGame::WriteChar(40, HEIGHT+2); cout << "Press 'RCTRL': 保存并应用";
+	CGame::WriteChar(55, HEIGHT + 2); cout << "← →: 切换地图";
 	CGame::WriteChar(WEIGHT/2-3, HEIGHT+3); cout << name;
 	HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
 	INPUT_RECORD ir = {};
