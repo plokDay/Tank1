@@ -88,15 +88,16 @@ void CBomb::CollisionObj(int check)
 					{//复活
 						CGame::m_vecTank[i].ClsObj();
 						CGame::m_vecTank[i].m_revive--;
-						CGame::m_vecTank[i].IniMyTank(i, 7, CGame::m_vecTank[i].m_revive, CGame::m_vecTank[i].m_score);
+						CGame::CheckGame();
+						if(CGame::m_vecTank[i].m_revive>0)CGame::m_vecTank[i].IniMyTank(i, 7, CGame::m_vecTank[i].m_revive, CGame::m_vecTank[i].m_score);
 					}
 				}
 			}
 		}
-		if (CGame::m_vecTank[0].m_revive <=0&& CGame::m_vecTank[1].m_revive <= 0)
-		{
-			CGame::m_stop = -2;//游戏结束
-		}
+		//if (CGame::m_vecTank[0].m_revive <=0&& CGame::m_vecTank[1].m_revive <= 0)
+		//{
+		//	CGame::m_stop = -2;//游戏结束
+		//}
 	}
 	else if (check == ETANK && tag <=1)//我方打中敌方坦克
 	{
@@ -111,17 +112,18 @@ void CBomb::CollisionObj(int check)
 				CGame::m_vecTank[i].tag == 2 ? CGame::m_vecTank[i].m_blood -= 2 : CGame::m_vecTank[i].m_blood -= 1;//Ene1的被打中每次-2 Ene2每次-1
 				
 				if (CGame::m_vecTank[i].m_blood <= 0)
-				{//敌方坦克不复活
-					//坦克加分
+				{
+					//我方坦克加分
 					tag == 0 ? CGame::m_vecTank[0].m_score++ : CGame::m_vecTank[1].m_score++;
 					CGame::m_vecTank[i].ClsObj();
 					CGame::m_vecTank[i].m_revive--;
-					//CGame::m_vecTank[i].IniMyTank(0, 15, CGame::m_vecTank[i].m_revive);
+					CGame::CheckGame();
+					CGame::m_vecTank[i].IniEne(CGame::m_vecTank[i].tag, CGame::m_vecTank[i].m_revive);
 					break;
 				}
 			}
 		}
-		CGame::CheckGame();
+		
 		
 	}
 	else if ((check == MBOMB )|| (check == EBOMB ))//子弹碰撞都消失

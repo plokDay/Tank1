@@ -61,10 +61,9 @@ void CTank::IniMyTank(int mtag, int color, int revive, int score)
 	tag = mtag;
 	m_blood = 3;
 	m_revive = revive;
-	
 	m_color = color;
 }
-void CTank::IniEne( int mtag)
+void CTank::IniEne( int mtag,int revive)
 {
 	do {
 		pos.X = 3 + rand() % WEIGHT - 4;
@@ -78,13 +77,13 @@ void CTank::IniEne( int mtag)
 	
 	m_color = 15;
 	m_blood = 3;
-	m_revive = 1;
+	m_revive = revive;
 	
 }
 
 void CTank::MoveObj()
 {
-	++m_bulletCD;
+	if(m_bulletCD < 10 ) m_bulletCD+=1;
 	if (tag == 0)//我方
 	{
 		GetMovOp("WASDE");
@@ -118,25 +117,23 @@ void CTank::MoveObj()
 		{
 			bool isStop = false;
 			int nEnd = 0; pos.X > WEIGHT / 2 ? nEnd = WEIGHT / 2 + 7 : nEnd = WEIGHT / 2 - 7;
-			//if (CheckObj(map) == 0|| CheckObj(map) == RIVER)//Ene2能过河
+			//if (CheckObj() == 0|| CheckObj() == RIVER)//Ene2能过河
 			{
 				ClsObj();
 				CAStar as;
 				as.InitMapInfo(/*(int*)*CMap::m_ArrMap,*/ HEIGHT, WEIGHT*2, 0);
-				as.InitCoord({ pos.X,pos.Y}, { nEnd, HEIGHT-4 });
+				as.InitCoord({ pos.X,pos.Y}, { nEnd, HEIGHT-5 });
 				bool res=as.FindPath(&isStop);
-				if (isStop==false)
+				if (isStop==false&&res)
 				{
-					if (res)
-					{
-						as.GetPath();
+					as.GetPath();
 						//as.PrintPath();
 						for (int i = as.m_Path.size() - 1; i > 0; i--)
 						{
 							nDir = as.m_Path[i].d;
 							break;
 						}
-					}
+					
 					switch (nDir)
 					{
 					case UP:pos.Y--; break;
@@ -153,12 +150,11 @@ void CTank::MoveObj()
 				}
 				
 				DrawObj();
-
 			}
-			
 		}
 		if (m_bulletCD >= 10 && rand() % 10 == 0)//如果CD时间到了有三分之一可能性发射炮弹
 		{
+			
 			m_bulletCD = 0;
 			Fire();
 		}
@@ -172,8 +168,7 @@ int CTank::CheckObj()
 	// 预定义4个方向的增量值
 	int next_points_x[4][3] = { { -1,0,1 }, {-1,0,1},{-2,-2,-2},{2,2,2} };
 	int next_points_y[4][3] = { { -2,-2,-2 },{2,2,2},{-1,0,1},{-1,0,1} };
-	//int sideX[12] = {-1,0,+1,+2,+2,+2,+1,0,-1,-2,-2,-2};
-	//int sideY[12] = {-2,-2,-2,-1,0,+1,+2,+2,+2,+1,0,-1};
+	
 	int nextx, nexty;
 	for (int i = 0; i < 3; ++i)
 	{
@@ -214,7 +209,7 @@ int CTank::CheckObj()
 void CTank::Fire()
 {
 	int x = pos.X, y = pos.Y;
-	const char *patter[4] = { "●","●","■","■" };
+	const char *patter[4] = { "●","●","◆","■" };
 	switch (nDir)//可缩写
 	{
 	case UP:
@@ -240,6 +235,7 @@ void CTank::Fire()
 	}
 	if (tag >= 2)
 	{
+		mciSendString("play shoot2.wav", NULL, 0, NULL);
 		CBomb::GreateB(*this);//创建子弹
 		//nDir = rand() % 4;
 		//if (rand() % 2 == 0) tag == 2 ? m_lastClock += clock() / 10 : m_lastClock += clock() / 8;//坦克暂停的间隔时间加长
@@ -249,10 +245,12 @@ void CTank::Fire()
 	{
 		if (m_bulletCD >= 10)
 		{
+			mciSendString("play shoot0.wav", NULL, 0, NULL);
 			m_bulletCD = 0;
+
 			CBomb::GreateB(*this);//创建子弹
 
-		}
+		}else mciSendString("play prepare.wav", NULL, 0, NULL);
 	}
 }
 
@@ -286,6 +284,11 @@ int CTank::GetBlood() const
 int CTank::GetScore() const
 {
 	return m_score;
+}
+
+int CTank::GetCD() const
+{
+	return m_bulletCD;
 }
 
 void CTank::GetMovOp(const char cOp[5])
@@ -340,7 +343,7 @@ void CTank::GetMovOp(const char cOp[5])
 	}
 	else if (GetAsyncKeyState(cOp[4]) & 1)
 	{
-		Fire();
+		Fire(); 
 	}
 }
 //随机生成的位置合法返回true

@@ -5,13 +5,13 @@
 using std::cout;
 CAStar::PVIR_INFO CAStar::m_pVir;
 
-//void CAStar::PrintPath()
-//{
-//	for (int i = m_Path.size() - 1; i >= 0; i--)
-//	{
-//		CGame::WriteChar(m_Path[i].X, m_Path[i].Y); cout << "@";
-//	}
-//}
+void CAStar::PrintPath()
+{
+	for (int i = m_Path.size() - 1; i >= 0; i--)
+	{
+		CGame::WriteChar(m_Path[i].X, m_Path[i].Y); cout << "@";
+	}
+}
 
 
 //返回false表示需要躲避炮弹
@@ -105,9 +105,10 @@ bool CAStar::FindPath(bool *stop)
 
 	while (true)
 	{
-		if ((m_Start.X==m_End.X-2 && m_Start.Y == m_End.Y )|| (m_Start.X == m_End.X + 1 &&m_Start.Y == m_End.Y))
+		if ((m_Start.X==m_End.X-2 && m_Start.Y == m_End.Y )|| (m_Start.X == m_End.X - 1 && m_Start.Y == m_End.Y)
+			|| (m_Start.X == m_End.X + 1 &&m_Start.Y == m_End.Y)|| (m_Start.X == m_End.X + 2 && m_Start.Y == m_End.Y))//到达寻路终点
 		{
-			*stop = true; break;
+			*stop = true; return false;
 		}
 		//Open表是否为空
 		if (m_Open.empty())
@@ -186,7 +187,8 @@ bool CAStar::FindPath(bool *stop)
 				}
 				for (int j = y - 1; j <= y + 1; j++) {
 					if (CMap::m_ArrMap[1][i][j] == BORDER || CMap::m_ArrMap[1][i][j] == WALL_REFLECT
-						|| CMap::m_ArrMap[1][i][j] == WALL_BREAK)//|| EludeBomb(i, j,k)==false)
+						|| CMap::m_ArrMap[1][i][j] == WALL_BREAK|| CMap::m_ArrMap[0][i][j] == MTANK||
+						CMap::m_ArrMap[0][i][j] == ETANK|| CMap::m_ArrMap[0][i][j] == MBOMB)//|| EludeBomb(i, j,k)==false)
 					{
 						mapp = true;
 						break;

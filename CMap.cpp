@@ -5,26 +5,20 @@
 #include "CGame.h"
 using std::cout;
 
-//CMap& CMap::GetMap() const
-//{
-//	//return m_ArrMap;
-//}
 int CMap::m_ArrMap[2][WEIGHT][HEIGHT] = {0};
-void CMap::setMap(int nZ, int nX, int nY,int val)
-{
-	m_ArrMap[nZ ][nX][nY] = val;
-}
+
 
 void CMap::DrawMap()
 {
-	CGame::WriteChar(WEIGHT / 2 - 1, HEIGHT - 4); cout << "¨Ž¡ô¨";
+	CGame::WriteChar(WEIGHT / 2 - 1, HEIGHT - 5); cout << "¨Ž¡ô¨";
+	CGame::WriteChar(WEIGHT / 2 - 1, HEIGHT - 4); cout << "¨€¨€¨€";
 	CGame::WriteChar(WEIGHT / 2 - 1, HEIGHT - 3); cout << "¨€¨€¨€";
 	CGame::WriteChar(WEIGHT / 2 - 1, HEIGHT - 2); cout << "¨¨€¨Ž";
 	for (int i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (int j = 0; j < 4; j++)
 		{
-			m_ArrMap[1][WEIGHT / 2 - 1 + i][HEIGHT - 4 + j] = BASE;
+			m_ArrMap[1][WEIGHT / 2 - 1 + i][HEIGHT - 5 + j] = BASE;
 		}
 	}
 	for (int y = 0; y < HEIGHT; ++y)

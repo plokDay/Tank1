@@ -8,7 +8,7 @@ class CMap
 {
 public:
 	
-	void setMap(int nZ,int nX,int nY,int val);
+	
 	void DrawMap();
 	void SaveMap(const char*);
 	void ReadMap(const char*);

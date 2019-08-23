@@ -9,10 +9,9 @@ public:
 	void DrawObj();
 	void ClsObj();
 	void IniMyTank(int mtag,int color,int revive,int score);
-	void IniEne(int mtag);
+	void IniEne(int mtag,int revive);
 	void MoveObj();
 	int CheckObj();
-	
 	void Fire();
 	
 	int GetRevive()const;
@@ -21,6 +20,7 @@ public:
 	int GetDir()const;
 	int GetBlood()const;
 	int GetScore()const;
+	int GetCD()const;
 private:
 	int m_bulletCD;//Éä»÷ÀäÈ´Ê±¼ä
 	int m_color;
@@ -41,7 +41,7 @@ private:
 	{{"©Ç","¡ñ","©Ï"},{"©Ç","¡ñ","©Ï"},{"©¥","¡ñ","©§"},{"©§","¡ñ","©¥"}},
 	{{"¨","©¥","¨"},{"©»","©§","©¿"},{"©»","©ß","¨"},{"¨","©ß","©¿"}}},{
 	{{"¨X","©§","¨["},{"¨X","¨j","¨["},{"¨X","¨j","¨["},{"¨X","¨j","¨["}},
-	{{"¨d","¡ö","¨g"},{"¨d","¡ö","¨g"},{"©¥","¡ö","¨g"},{"¨d","¡ö","©¥"}},
+	{{"¨d","¡ô","¨g"},{"¨d","¡ô","¨g"},{"©¥","¡ô","¨g"},{"¨d","¡ô","©¥"}},
 	{{"¨^","¨m","¨a"},{"¨^","©§","¨a"},{"¨^","¨m","¨a"},{"¨^","¨m","¨a"}}},{
 	{{"©³","©§","©·"},{"©³","©×","©·"},{"©³","©×","©·"},{"©³","©×","©·"}},
 	{{"©Ç","¡ö","©Ï"},{"©Ç","¡ö","©Ï"},{"©¥","¡ö","©Ï"},{"©Ç","¡ö","©¥"}},

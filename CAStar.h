@@ -77,5 +77,5 @@ public:
 	}VIR_INFO, *PVIR_INFO;
 
 	static PVIR_INFO m_pVir; //指向虚拟地图的首地址
-	//void PrintPath();
+	void PrintPath();
 };

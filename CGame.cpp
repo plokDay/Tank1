@@ -1,5 +1,7 @@
+#pragma comment(lib, "winmm")
 #include <stdlib.h>
 #include <iostream>
+#include <windows.h>
 #include "CGame.h"
 #include "Data.h"
 
@@ -7,22 +9,49 @@ using std::cout;
 vector<CBomb> CGame::m_vecBomb;//静态数据成员类内声明类外定义
 vector<CTank> CGame::m_vecTank;
 int CGame::m_stop = 1;
-
+char  CGame::m_backSound[10] = "back.wav";
+char CGame::m_text[100] = "======================Tank War=======================";
 void CGame::CheckGame()
 {
 	bool isWin = true;
-	for (int i = 1; i < CGame::m_vecTank.size(); ++i)//遍历判断有没有赢
+	CTank* mtank = &m_vecTank[0];
+	CTank* etank = &m_vecTank[1];
+	int n = mtank->GetRevive();
+	int m = etank->GetRevive();
+	if (etank->GetTag() == 1)
 	{
-		if (CGame::m_vecTank[i].GetTag() > 1)
+		if (n <= 0&&m<=0)
 		{
-			if (CGame::m_vecTank[i].GetRevive() > 0)
+			strcpy_s(m_backSound, 10, "fail.wav");
+			strcpy_s(m_text, 100, "======================You fail=======================");
+			m_stop = -2; return;//输了，游戏结束
+		}
+	}
+	else if (n <= 0)
+	{
+			strcpy_s(m_backSound, 10, "fail.wav");
+			strcpy_s(m_text, 100, "======================You fail=======================");
+			m_stop = -2; return;//输了，游戏结束
+		
+	}
+	
+	for (int i = 1; i < m_vecTank.size(); ++i)//遍历判断有没有赢
+	{
+		if (m_vecTank[i].GetTag() > 1)
+		{
+			if (m_vecTank[i].GetRevive() > 0)
 			{
 				isWin = false;
 			}
 		}
-
 	}
-	if (isWin)CGame::m_stop = 2;//表示赢了
+	
+	if (isWin)
+	{
+		m_stop = 2;//表示赢了
+		strcpy_s(m_backSound, 10, "back.wav");
+		strcpy_s(m_text, 100, "      You win.But in War,there are no winners");
+	}
 
 }
 
@@ -34,7 +63,7 @@ void CGame::WriteChar(int x, int y, int foreColor /*= 15*/, int backcolor /*= 0*
 	cci.dwSize = 1;
 	cci.bVisible = FALSE;
 	SetConsoleCursorInfo(hStout, &cci);
-	COORD pos = { x * 2,y };
+	COORD pos = { (short)x * 2,(short)y };
 	SetConsoleTextAttribute(hStout, foreColor + backcolor * 0x10);
 	SetConsoleCursorPosition(hStout, pos);
 }
@@ -48,11 +77,13 @@ void CGame::set()
 	SetConsoleMode(hInput, mode);
 }
 
-int CGame::Menu()
+int CGame::Menu(const char* sound,const char* text)
 {
+	PlaySound(sound, NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 	system("cls");
 	int i = 0;//临时变量，用来移动坦克
 	int nOp = 1;//记录选项
+	CGame::WriteChar(26, 29); cout << text;
 	CGame::WriteChar(WEIGHT / 2, 31); cout << "单人模式";
 	CGame::WriteChar(WEIGHT / 2, 32); cout << "双人模式";
 	CGame::WriteChar(WEIGHT / 2, 33); cout << "编辑地图";
@@ -132,7 +163,8 @@ int CGame::Menu()
 }
 void CGame::IniAll()
 {
-
+	strcpy_s(CGame::m_backSound, 10, "back.wav");
+	strcpy_s(CGame::m_text, 100, "======================Tank War=======================");
 	m_map.ReadMap(m_mapNamelev[m_level - 1]);
 	
 	CTank tempTank;
@@ -140,14 +172,15 @@ void CGame::IniAll()
 	m_vecTank.push_back(tempTank);
 	tempTank.IniMyTank(1, 15, m_isDouble, 0);
 	m_vecTank.push_back(tempTank);
-	tempTank.IniEne( 2);
+	tempTank.IniEne( 2,m_level);
 	m_vecTank.push_back(tempTank);
-	tempTank.IniEne(3);
+	tempTank.IniEne(3,m_level);
 	m_vecTank.push_back(tempTank);
 }
 
 void CGame::StartGame()
 {
+	PlaySound("back.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 	system("cls");
 	m_map.DrawMap();
 
@@ -192,12 +225,7 @@ void CGame::StartGame()
 
 		}
 		PrintUI();
-		if (m_stop == -2)
-		{
-			vector<CBomb>().swap(m_vecBomb);//清空并释放内存
-			vector<CTank>().swap(m_vecTank);//清空并释放内存
-			break;//游戏结束
-		}
+		
 
 		if (GetAsyncKeyState(VK_RCONTROL) & 1)	//右边的CTRL存档
 		{
@@ -214,11 +242,17 @@ void CGame::StartGame()
 		{
 			m_stop = -m_stop;
 		}
-		if (GetAsyncKeyState(VK_BACK) & 1)	//BACK退出
+		if (m_stop==-2)
+		{
+			strcpy_s(m_backSound, 10, "fail.wav");
+			strcpy_s(m_text, 100, "======================You fail=======================");
+		}
+		if (GetAsyncKeyState(VK_BACK) & 1|| m_stop == -2)	//BACK退出
 		{
 			vector<CBomb>().swap(m_vecBomb);//清空并释放内存
 			vector<CTank>().swap(m_vecTank);//清空并释放内存
 			m_level = 1;
+			m_stop = 1;
 			break;
 		}
 		Sleep(30);
@@ -230,10 +264,7 @@ void CGame::SetDouble(int n)
 	m_isDouble = n;
 }
 
-void CGame::SetOld()
-{
-	m_isOld = true;
-}
+
 
 
 CMap& CGame::GetMap()
@@ -317,6 +348,23 @@ void CGame::PrintUI() const
 		CGame::WriteChar(WEIGHT / 2 + 10, HEIGHT + 1);
 		cout << "Blood:" << m_vecTank[1].GetBlood() << "   Revive:" << m_vecTank[1].GetRevive() <<
 			"   Score:" << m_vecTank[1].GetScore();
+		CGame::WriteChar(WEIGHT / 2 + 10, HEIGHT + 2);
+		switch (m_vecTank[1].GetCD())
+		{
+		case 0:cout << "                    "; break;
+		case 1:cout << "▆                  "; break;
+		case 2:cout << "▆▆                "; break;
+		case 3:cout << "▆▆▆              "; break;
+		case 4:cout << "▆▆▆▆            "; break;
+		case 5:cout << "▆▆▆▆▆          "; break;
+		case 6:cout << "▆▆▆▆▆▆        "; break;
+		case 7:cout << "▆▆▆▆▆▆▆      "; break;
+		case 8:cout << "▆▆▆▆▆▆▆▆    "; break;
+		case 9:cout << "▆▆▆▆▆▆▆▆▆  "; break;
+		case 10:cout << "▆▆▆▆▆▆▆▆▆▆"; break;
+		default:
+			break;
+		}
 	}
 	CGame::WriteChar(WEIGHT / 2 - 7, HEIGHT + 2);
 	cout << "SPACE暂停 BACK退出  RCTRL存档 ";
@@ -325,5 +373,23 @@ void CGame::PrintUI() const
 	CGame::WriteChar(WEIGHT / 2 - 25, HEIGHT + 1);
 	cout << "Blood:" << m_vecTank[0].GetBlood() << "   Revive:" << m_vecTank[0].GetRevive() <<
 		"   Score:" << m_vecTank[0].GetScore();
+	CGame::WriteChar(WEIGHT / 2 - 25, HEIGHT + 2);
+	switch (m_vecTank[0].GetCD())
+	{
+		 case 0:cout << "                    "; break;
+		 case 1:cout << "▆                  ";break;
+		 case 2:cout << "▆▆                ";break;
+		 case 3:cout << "▆▆▆              ";break;
+		 case 4:cout << "▆▆▆▆            ";break;
+		 case 5:cout << "▆▆▆▆▆          ";break;
+		 case 6:cout << "▆▆▆▆▆▆        ";break;
+		 case 7:cout << "▆▆▆▆▆▆▆      ";break;
+		 case 8:cout << "▆▆▆▆▆▆▆▆    ";break;
+		 case 9:cout << "▆▆▆▆▆▆▆▆▆  ";break;
+		 case 10:cout << "▆▆▆▆▆▆▆▆▆▆"; break;
+	default:
+		break;
+	}
+	
 }
 
